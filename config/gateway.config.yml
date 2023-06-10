@@ -1,22 +1,26 @@
 http:
   port: 8080
+  hostname: '0.0.0.0'
 admin:
   port: 9876
   host: localhost
 apiEndpoints:
+  api:
+    host: '*'
+    paths: '/ip'
   notification:
-    host: localhost
+    host: '*'
     paths: '/v1/notifications/*'
   user:
-    host: localhost
+    host: '*'
     paths:
       - '/v1/users/*'
       - '/v1/auth/*'
   debate-zone:
-    host: localhost
-    paths: '/v1/debate-zone/*'
+    host: '*'
+    paths: '/v1/debate-zones/*'
   streaming:
-    host: localhost
+    host: '*'
     paths: '/v1/streaming/*'
 serviceEndpoints:
   notification:
@@ -27,7 +31,8 @@ serviceEndpoints:
     url: 'http://localhost:8092'
   streaming:
     url: 'http://localhost:8091'
-
+  httpbin:
+    url: 'https://httpbin.org'
 policies:
   - basic-auth
   - cors
@@ -38,6 +43,14 @@ policies:
   - proxy
   - rate-limit
 pipelines:
+  default:
+    apiEndpoints:
+      - api
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: httpbin
+              changeOrigin: true
   pipeline1:
     apiEndpoints:
       - notification
@@ -61,4 +74,12 @@ pipelines:
       - proxy:
           - action:
               serviceEndpoint: debate-zone
+              changeOrigin: true
+  pipeline4:
+    apiEndpoints:
+      - streaming
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: streaming
               changeOrigin: true
