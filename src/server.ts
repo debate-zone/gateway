@@ -31,8 +31,8 @@ const server = gateway({
       middlewares: [checkToken],
     },
     {
-      prefix: "/streaming",
-      target: process.env.STREAMING_MICRO_SERVICE_URL,
+      prefix: "/media",
+      target: process.env.MEDIA_MICRO_SERVICE_URL,
     },
   ],
 });
