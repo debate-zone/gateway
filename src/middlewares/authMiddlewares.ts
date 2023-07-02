@@ -1,33 +1,23 @@
 import { Request, Response } from "express";
-import { verify } from "jsonwebtoken";
-import { JWT } from "../server";
-const crypto = require("crypto");
+import { OutputDecodedToken } from "../../../debate-zone-micro-service-common-library/src/types/auth";
+import { verify } from "../../../debate-zone-micro-service-common-library/src/auth/token";
 
 export const checkToken = async (req: Request, res: Response, next: any) => {
-  let jwtPayload: JWT | undefined;
-
   const token: string | undefined = req.headers.authorization?.split(" ")[1];
 
   if (!token) throw new Error("Token not found");
 
   try {
-    jwtPayload = (await verify(token, getJwtSecret())) as JWT;
+    const outputDecodedToken: OutputDecodedToken = await verify(token);
 
-    req.headers["x-user-id"] = jwtPayload.userId || "";
-    req.headers["x-role"] = jwtPayload.role || "";
-    req.headers["x-email"] = jwtPayload.email || "";
-    req.headers["x-full-name"] = jwtPayload.fullName || "";
+    req.headers["x-user-id"] = outputDecodedToken.userId || "";
+    req.headers["x-user-role"] = outputDecodedToken.userRole || "";
+    req.headers["x-user-email"] = outputDecodedToken.userEmail || "";
+    req.headers["x-user-full-name"] = outputDecodedToken.userFullName || "";
     req.headers["Authorization"] = "";
 
     next();
   } catch (error) {
     throw new Error("Invalid token");
   }
-};
-
-const getJwtSecret = (): string => {
-  return crypto
-    .createHash("sha256")
-    .update(process.env.JWT_SECRET)
-    .digest("hex");
 };

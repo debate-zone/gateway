@@ -2,13 +2,6 @@ import "dotenv/config";
 import { checkToken } from "./middlewares/authMiddlewares";
 const gateway = require("fast-gateway");
 
-export type JWT = {
-  userId: string;
-  role: string;
-  email: string;
-  fullName: string;
-};
-
 const server = gateway({
   routes: [
     {
@@ -33,6 +26,7 @@ const server = gateway({
     {
       prefix: "/media",
       target: process.env.MEDIA_MICRO_SERVICE_URL,
+      middlewares: [checkToken],
     },
   ],
 });
